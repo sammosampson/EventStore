@@ -229,6 +229,26 @@ namespace EventStore.ClientAPI.Internal {
 			return await source.Task.ConfigureAwait(false);
 		}
 
+		public async Task<AllEventsSlice> ReadAllEventsForwardFilteredAsync(Position position, int maxCount,
+			bool resolveLinkTos, EventFilter eventFilter, int maxSearchWindow, UserCredentials userCredentials = null) {
+			Ensure.Positive(maxCount, "maxCount");
+			Ensure.Positive(maxSearchWindow, nameof(maxSearchWindow));
+			Ensure.GreaterThanOrEqualTo(maxSearchWindow, maxCount, nameof(maxSearchWindow));
+			Ensure.NotNull(eventFilter, nameof(eventFilter));
+			
+			if (maxCount > ClientApiConstants.MaxReadSize)
+				throw new ArgumentException(string.Format(
+					"Count should be less than {0}. For larger reads you should page.",
+					ClientApiConstants.MaxReadSize));
+			
+			var source = TaskCompletionSourceFactory.Create<AllEventsSlice>();
+			var operation = new ReadAllEventsForwardFilteredOperation(Settings.Log, source, position, maxCount,
+				resolveLinkTos, Settings.RequireMaster, maxSearchWindow, eventFilter.Filters, userCredentials);
+			
+			await EnqueueOperation(operation).ConfigureAwait(false);
+			return await source.Task.ConfigureAwait(false);
+		}
+
 		public async Task<AllEventsSlice> ReadAllEventsBackwardAsync(Position position, int maxCount,
 			bool resolveLinkTos, UserCredentials userCredentials = null) {
 			Ensure.Positive(maxCount, "maxCount");
@@ -241,6 +261,11 @@ namespace EventStore.ClientAPI.Internal {
 				resolveLinkTos, Settings.RequireMaster, userCredentials);
 			await EnqueueOperation(operation).ConfigureAwait(false);
 			return await source.Task.ConfigureAwait(false);
+		}
+
+		public Task<AllEventsSlice> ReadAllEventsBackwardsFilteredAsync(Position position, int maxCount, bool resolveLinkTos, EventFilter eventFilter,
+			int maxSearchWindow, UserCredentials userCredentials = null) {
+			throw new NotImplementedException();
 		}
 
 		private async Task EnqueueOperation(IClientOperation operation) {

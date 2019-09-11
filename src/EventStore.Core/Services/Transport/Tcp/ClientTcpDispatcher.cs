@@ -453,7 +453,8 @@ namespace EventStore.Core.Services.Transport.Tcp {
 			var dto = package.Data.Deserialize<TcpClientMessageDto.ReadAllEventsFiltered>();
 			if (dto == null) return null;
 
-			StringFilter allowedTypes = new StringFilter(dto.AllowedEventTypes);
+			EventFilter eventFilter = new EventFilter(dto.Filters);
+			
 			int maxSearchWindow = dto.MaxCount;
 			if (dto.MaxSearchWindow.HasValue) {
 				maxSearchWindow = dto.MaxSearchWindow.GetValueOrDefault();
@@ -461,7 +462,7 @@ namespace EventStore.Core.Services.Transport.Tcp {
 
 			return new ClientMessage.ReadAllEventsForwardFiltered(Guid.NewGuid(), package.CorrelationId, envelope,
 				dto.CommitPosition, dto.PreparePosition, dto.MaxCount,
-				dto.ResolveLinkTos, dto.RequireMaster, maxSearchWindow, null, user, null, allowedTypes);
+				dto.ResolveLinkTos, dto.RequireMaster, maxSearchWindow, null, eventFilter, user, null);
 		}
 
 		private static TcpPackage WrapReadAllEventsForwardFilteredCompleted(

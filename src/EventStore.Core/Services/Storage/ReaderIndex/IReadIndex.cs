@@ -33,7 +33,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex {
 		/// Positions is specified as pre-positions (pointer at the beginning of the record).
 		/// </summary>
 		IndexReadAllFilteredResult ReadAllEventsForwardFiltered(TFPos pos, int maxCount, int maxSearchWindow,
-			StringFilter allowedEventTypes);
+			EventFilter eventFilter, EventFilter streamFilter);
 
 		bool IsStreamDeleted(string streamId);
 		long GetStreamLastEventNumber(string streamId);

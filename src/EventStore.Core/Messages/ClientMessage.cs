@@ -891,8 +891,8 @@ namespace EventStore.Core.Messages {
 		}
 
 		public class ReadAllEventsForwardFiltered : ReadRequestMessage {
-			private static readonly int TypeId = Interlocked.Increment(ref NextMsgId);			
-			
+			private static readonly int TypeId = Interlocked.Increment(ref NextMsgId);
+
 			public override int MsgTypeId {
 				get { return TypeId; }
 			}
@@ -903,16 +903,16 @@ namespace EventStore.Core.Messages {
 			public readonly bool ResolveLinkTos;
 			public readonly bool RequireMaster;
 			public readonly int MaxSearchWindow;
-			public readonly StringFilter AllowedEventTypes;
+			public readonly EventFilter EventFilter;
+			public readonly EventFilter StreamFilter;
 
 			public readonly long? ValidationTfLastCommitPosition;
 			public readonly TimeSpan? LongPollTimeout;
 
 			public ReadAllEventsForwardFiltered(Guid internalCorrId, Guid correlationId, IEnvelope envelope,
-				long commitPosition, long preparePosition, int maxCount, bool resolveLinkTos,
-				bool requireMaster, int maxSearchWindow, long? validationTfLastCommitPosition,
-				IPrincipal user, TimeSpan? longPollTimeout = null,
-				StringFilter allowedEventTypes = null)
+				long commitPosition, long preparePosition, int maxCount, bool resolveLinkTos, bool requireMaster,
+				int maxSearchWindow, long? validationTfLastCommitPosition, EventFilter eventFilter, IPrincipal user,
+				TimeSpan? longPollTimeout = null)
 				: base(internalCorrId, correlationId, envelope, user) {
 				CommitPosition = commitPosition;
 				PreparePosition = preparePosition;
@@ -922,13 +922,13 @@ namespace EventStore.Core.Messages {
 				ValidationTfLastCommitPosition = validationTfLastCommitPosition;
 				LongPollTimeout = longPollTimeout;
 				MaxSearchWindow = maxSearchWindow;
-				AllowedEventTypes = allowedEventTypes;
+				EventFilter = eventFilter;
 			}
 		}
 
 		public class ReadAllEventsForwardFilteredCompleted : ReadResponseMessage {
 			private static readonly int TypeId = Interlocked.Increment(ref NextMsgId);
-						
+
 			public override int MsgTypeId {
 				get { return TypeId; }
 			}
