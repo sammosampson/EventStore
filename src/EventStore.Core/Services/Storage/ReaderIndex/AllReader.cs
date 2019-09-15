@@ -22,7 +22,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex {
 		/// Positions is specified as pre-positions (pointer at the beginning of the record).
 		/// </summary>
 		IndexReadAllFilteredResult ReadAllEventsForwardFiltered(TFPos pos, int maxCount, int maxSearchWindow,
-			EventFilter eventFilter, EventFilter streamFilter);
+			EventFilter eventFilter);
 
 		/// <summary>
 		/// Returns event records in the reverse sequence they were committed into TF.
@@ -46,13 +46,13 @@ namespace EventStore.Core.Services.Storage.ReaderIndex {
 		}
 
 		public IndexReadAllResult ReadAllEventsForward(TFPos pos, int maxCount) {
-			var result = ReadAllEventsForwardInternal(pos, maxCount, maxCount, new EventFilter(null), new EventFilter(null));
+			var result = ReadAllEventsForwardInternal(pos, maxCount, maxCount, new EventFilter(null));
 			return new IndexReadAllResult(result.Records, result.CurrentPos, result.NextPos, result.PrevPos);
 		}
 
 		public IndexReadAllFilteredResult ReadAllEventsForwardFiltered(TFPos pos, int maxCount, int maxSearchWindow,
-			EventFilter eventFilter, EventFilter streamFilter) {
-			var result = ReadAllEventsForwardInternal(pos, maxCount, maxSearchWindow, eventFilter, streamFilter);
+			EventFilter eventFilter) {
+			var result = ReadAllEventsForwardInternal(pos, maxCount, maxSearchWindow, eventFilter);
 			return new IndexReadAllFilteredResult(result.Records, result.CurrentPos, result.NextPos, result.PrevPos,
 				result.IsEndOfStream);
 		}
@@ -77,7 +77,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex {
 		}
 
 		private ReadAllEventsRawResult ReadAllEventsForwardInternal(TFPos pos, int maxCount, int maxSearchWindow,
-			EventFilter eventFilter, EventFilter streamFilter) {
+			EventFilter eventFilter) {
 			var records = new List<CommitEventRecord>();
 			var nextPos = pos;
 			// in case we are at position after which there is no commit at all, in that case we have to force 
