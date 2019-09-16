@@ -13,11 +13,11 @@ namespace EventStore.ClientAPI.ClientOperations {
 		private readonly bool _resolveLinkTos;
 		private readonly bool _requireMaster;
 		private readonly int _maxSearchWindow;
-		private readonly ClientMessage.Filter[] _filters;
+		private readonly ClientMessage.Filter _filter;
 
 		public ReadAllEventsForwardFilteredOperation(ILogger log, TaskCompletionSource<AllEventsSlice> source,
 			Position position, int maxCount, bool resolveLinkTos, bool requireMaster, int maxSearchWindow,
-			ClientMessage.Filter[] filters,
+			ClientMessage.Filter filter,
 			UserCredentials userCredentials)
 			: base(log, source, TcpCommand.ReadAllEventsForwardFiltered,
 				TcpCommand.ReadAllEventsForwardFilteredCompleted,
@@ -27,12 +27,12 @@ namespace EventStore.ClientAPI.ClientOperations {
 			_resolveLinkTos = resolveLinkTos;
 			_requireMaster = requireMaster;
 			_maxSearchWindow = maxSearchWindow;
-			_filters = filters;
+			_filter = filter;
 		}
 
 		protected override object CreateRequestDto() {
 			return new ClientMessage.ReadAllEventsFiltered(_position.CommitPosition, _position.PreparePosition,
-				_maxCount, _maxSearchWindow, _resolveLinkTos, _requireMaster, _filters);
+				_maxCount, _maxSearchWindow, _resolveLinkTos, _requireMaster, _filter);
 		}
 
 		protected override InspectionResult InspectResponse(ClientMessage.ReadAllEventsFilteredCompleted response) {

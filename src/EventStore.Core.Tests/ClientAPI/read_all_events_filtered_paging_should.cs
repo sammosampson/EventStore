@@ -47,10 +47,7 @@
 
   		[Test, Category("LongRunning")]
  		public void handle_paging_between_events_forward() {
- 			var filter = EventFilter
- 				.Create()
- 				.WithEventTypePrefixFilter("CE")
- 				.Build();
+            var filter = Filter.EventType.Prefix("CE");
 
   			var sliceStart = Position.Start;
  			var read = new List<ResolvedEvent>();
@@ -71,10 +68,7 @@
         
         [Test, Category("LongRunning")]
         public void handle_paging_between_events_backward() {
-	        var filter = EventFilter
-		        .Create()
-		        .WithEventTypePrefixFilter("AE")
-		        .Build();
+	        var filter = Filter.EventType.Prefix("AE");
 
 	        var sliceStart = Position.End;
 	        var read = new List<ResolvedEvent>();
@@ -89,7 +83,7 @@
 	        } while (!slice.IsEndOfStream);
 
 	        Assert.That(EventDataComparer.Equal(
-		        _testEventsC.ToArray(),
+		        _testEventsA.ReverseEvents(),
 		        read.Select(x => x.Event).ToArray()));
         }
  	}

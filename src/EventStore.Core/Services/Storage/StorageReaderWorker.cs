@@ -164,8 +164,7 @@ namespace EventStore.Core.Services.Storage {
 			msg.Envelope.ReplyWith(ReadAllEventsBackward(msg));
 		}
 
-		void IHandle<ClientMessage.ReadAllEventsForwardFiltered>.
-			Handle(ClientMessage.ReadAllEventsForwardFiltered msg) {
+		void IHandle<ClientMessage.ReadAllEventsForwardFiltered>.Handle(ClientMessage.ReadAllEventsForwardFiltered msg) {
 			if (msg.Expires < DateTime.UtcNow) {
 				Log.Debug(
 					"Read All Stream Events Forward Filtered operation has expired for C:{0}/P:{1}. Operation Expired at {2}",

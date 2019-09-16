@@ -903,14 +903,14 @@ namespace EventStore.Core.Messages {
 			public readonly bool ResolveLinkTos;
 			public readonly bool RequireMaster;
 			public readonly int MaxSearchWindow;
-			public readonly EventFilter EventFilter;
+			public readonly IEventFilter EventFilter;
 
 			public readonly long? ValidationTfLastCommitPosition;
 			public readonly TimeSpan? LongPollTimeout;
 
 			public ReadAllEventsForwardFiltered(Guid internalCorrId, Guid correlationId, IEnvelope envelope,
 				long commitPosition, long preparePosition, int maxCount, bool resolveLinkTos, bool requireMaster,
-				int maxSearchWindow, long? validationTfLastCommitPosition, EventFilter eventFilter, IPrincipal user,
+				int maxSearchWindow, long? validationTfLastCommitPosition, IEventFilter eventFilter, IPrincipal user,
 				TimeSpan? longPollTimeout = null)
 				: base(internalCorrId, correlationId, envelope, user) {
 				CommitPosition = commitPosition;
@@ -982,15 +982,14 @@ namespace EventStore.Core.Messages {
 			public readonly bool ResolveLinkTos;
 			public readonly bool RequireMaster;
 			public readonly int MaxSearchWindow;
-			public readonly EventFilter EventFilter;
-			public readonly EventFilter StreamFilter;
+			public readonly IEventFilter EventFilter;
 
 			public readonly long? ValidationTfLastCommitPosition;
 			public readonly TimeSpan? LongPollTimeout;
 
 			public ReadAllEventsBackwardFiltered(Guid internalCorrId, Guid correlationId, IEnvelope envelope,
 				long commitPosition, long preparePosition, int maxCount, bool resolveLinkTos, bool requireMaster,
-				int maxSearchWindow, long? validationTfLastCommitPosition, EventFilter eventFilter, IPrincipal user,
+				int maxSearchWindow, long? validationTfLastCommitPosition, IEventFilter eventFilter, IPrincipal user,
 				TimeSpan? longPollTimeout = null)
 				: base(internalCorrId, correlationId, envelope, user) {
 				CommitPosition = commitPosition;

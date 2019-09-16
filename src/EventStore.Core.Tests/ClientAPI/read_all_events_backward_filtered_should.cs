@@ -31,10 +31,7 @@ namespace EventStore.Core.Tests.ClientAPI {
 
 		[Test, Category("LongRunning")]
 		public void only_return_events_with_a_given_stream_prefix() {
-			var filter = EventFilter
-				.Create()
-				.WithStreamIdPrefixFilter("stream-a")
-				.Build();
+			var filter = Filter.StreamId.Prefix("stream-a");
 
 			var read = _conn.ReadAllEventsBackwardFilteredAsync(Position.End, 4096, false, filter, 4096).Result;
 			Assert.That(EventDataComparer.Equal(
@@ -44,10 +41,7 @@ namespace EventStore.Core.Tests.ClientAPI {
 
 		[Test, Category("LongRunning")]
 		public void only_return_events_with_a_given_event_prefix() {
-			var filter = EventFilter
-				.Create()
-				.WithEventTypePrefixFilter("AE")
-				.Build();
+			var filter = Filter.EventType.Prefix("AE");
 
 			// Have to order the events as we are writing to two streams and can't guarantee ordering
 			var read = _conn.ReadAllEventsBackwardFilteredAsync(Position.End, 4096, false, filter, 4096).Result;
@@ -58,10 +52,7 @@ namespace EventStore.Core.Tests.ClientAPI {
 
 		[Test, Category("LongRunning")]
 		public void only_return_events_that_satisfy_a_given_stream_regex() {
-			var filter = EventFilter
-				.Create()
-				.WithStreamIdFilter(new Regex(@"^.*m-b.*$"))
-				.Build();
+			var filter = Filter.StreamId.Regex(new Regex(@"^.*m-b.*$"));
 
 			var read = _conn.ReadAllEventsBackwardFilteredAsync(Position.End, 4096, false, filter, 4096).Result;
 			Assert.That(EventDataComparer.Equal(
@@ -71,11 +62,8 @@ namespace EventStore.Core.Tests.ClientAPI {
 
 		[Test, Category("LongRunning")]
 		public void only_return_events_that_satisfy_a_given_event_regex() {
-			var filter = EventFilter
-				.Create()
-				.WithEventTypeFilter(new Regex(@"^.*BEv.*$"))
-				.Build();
-
+			var filter = Filter.EventType.Regex(new Regex(@"^.*BEv.*$"));
+			
 			// Have to order the events as we are writing to two streams and can't guarantee ordering
 			var read = _conn.ReadAllEventsBackwardFilteredAsync(Position.End, 4096, false, filter, 4096).Result;
 			Assert.That(EventDataComparer.Equal(
@@ -85,10 +73,7 @@ namespace EventStore.Core.Tests.ClientAPI {
 
 		[Test, Category("LongRunning")]
 		public void only_return_events_that_are_not_system_events() {
-			var filter = EventFilter
-				.Create()
-				.ExcludeSystemEvents()
-				.Build();
+			var filter = Filter.ExcludeSystemEvents;
 
 			// Have to order the events as we are writing to two streams and can't guarantee ordering
 			var read = _conn.ReadAllEventsBackwardFilteredAsync(Position.End, 4096, false, filter, 4096).Result;

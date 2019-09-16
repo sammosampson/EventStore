@@ -503,7 +503,9 @@ namespace EventStore.Core.Tests.ClientAPI {
 			return _readAllEventsForwardAsync(position, maxCount, resolveLinkTos, userCredentials);
 		}
 
-		public Task<AllEventsSlice> ReadAllEventsForwardFilteredAsync(Position position, int maxCount, bool resolveLinkTos, EventFilter eventFilter, int maxSearchWindow, UserCredentials userCredentials = null) {
+		public Task<AllEventsSlice> ReadAllEventsForwardFilteredAsync(Position position, int maxCount,
+			bool resolveLinkTos, Filter filter,
+			int maxSearchWindow, UserCredentials userCredentials = null) {
 			throw new NotImplementedException();
 		}
 
@@ -512,15 +514,12 @@ namespace EventStore.Core.Tests.ClientAPI {
 			throw new NotImplementedException();
 		}
 
-		public Task<AllEventsSlice> ReadAllEventsBackwardFilteredAsync(Position position, int maxCount, bool resolveLinkTos, EventFilter eventFilter,
+		public Task<AllEventsSlice> ReadAllEventsBackwardFilteredAsync(Position position, int maxCount,
+			bool resolveLinkTos, Filter filter,
 			int maxSearchWindow, UserCredentials userCredentials = null) {
 			throw new NotImplementedException();
 		}
 
-		public Task<AllEventsSlice> ReadAllEventsBackwardsFilteredAsync(Position position, int maxCount, bool resolveLinkTos, EventFilter eventFilter,
-			int maxSearchWindow, UserCredentials userCredentials = null) {
-			throw new NotImplementedException();
-		}
 
 		public void HandleSubscribeToStreamAsync(
 			Func<string, Func<EventStoreSubscription, ResolvedEvent, Task>,

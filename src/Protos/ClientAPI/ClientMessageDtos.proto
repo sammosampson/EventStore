@@ -213,7 +213,7 @@ message Filter{
 
     required FilterContext context = 1;    
     required FilterType type = 2;    
-    required string data = 3;    
+    repeated string data = 3;    
 }
 
 message ReadAllEventsFiltered {
@@ -223,7 +223,7 @@ message ReadAllEventsFiltered {
     optional int32 max_search_window = 4;
     required bool resolve_link_tos = 5;
     required bool require_master = 6;
-    repeated Filter filters = 7;
+    required Filter filter = 7;
 }
 
 message ReadAllEventsFilteredCompleted {

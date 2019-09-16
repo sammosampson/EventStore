@@ -458,7 +458,7 @@ namespace EventStore.Core.Services.Transport.Tcp {
 			var dto = package.Data.Deserialize<TcpClientMessageDto.ReadAllEventsFiltered>();
 			if (dto == null) return null;
 
-			EventFilter eventFilter = new EventFilter(dto.Filters);
+			IEventFilter eventFilter = EventFilter.Get(dto.Filter);
 
 			int maxSearchWindow = dto.MaxCount;
 			if (dto.MaxSearchWindow.HasValue) {
@@ -494,7 +494,7 @@ namespace EventStore.Core.Services.Transport.Tcp {
 			var dto = package.Data.Deserialize<TcpClientMessageDto.ReadAllEventsFiltered>();
 			if (dto == null) return null;
 
-			EventFilter eventFilter = new EventFilter(dto.Filters);
+			IEventFilter eventFilter = EventFilter.Get(dto.Filter);
 
 			int maxSearchWindow = dto.MaxCount;
 			if (dto.MaxSearchWindow.HasValue) {

@@ -230,11 +230,11 @@ namespace EventStore.ClientAPI.Internal {
 		}
 
 		public async Task<AllEventsSlice> ReadAllEventsForwardFilteredAsync(Position position, int maxCount,
-			bool resolveLinkTos, EventFilter eventFilter, int maxSearchWindow, UserCredentials userCredentials = null) {
+			bool resolveLinkTos, Filter filter, int maxSearchWindow, UserCredentials userCredentials = null) {
 			Ensure.Positive(maxCount, "maxCount");
 			Ensure.Positive(maxSearchWindow, nameof(maxSearchWindow));
 			Ensure.GreaterThanOrEqualTo(maxSearchWindow, maxCount, nameof(maxSearchWindow));
-			Ensure.NotNull(eventFilter, nameof(eventFilter));
+			Ensure.NotNull(filter, nameof(filter));
 
 			if (maxCount > ClientApiConstants.MaxReadSize)
 				throw new ArgumentException(string.Format(
@@ -243,7 +243,7 @@ namespace EventStore.ClientAPI.Internal {
 
 			var source = TaskCompletionSourceFactory.Create<AllEventsSlice>();
 			var operation = new ReadAllEventsForwardFilteredOperation(Settings.Log, source, position, maxCount,
-				resolveLinkTos, Settings.RequireMaster, maxSearchWindow, eventFilter.Filters, userCredentials);
+				resolveLinkTos, Settings.RequireMaster, maxSearchWindow, filter.Value, userCredentials);
 
 			await EnqueueOperation(operation).ConfigureAwait(false);
 			return await source.Task.ConfigureAwait(false);
@@ -264,12 +264,12 @@ namespace EventStore.ClientAPI.Internal {
 		}
 
 		public async Task<AllEventsSlice> ReadAllEventsBackwardFilteredAsync(Position position, int maxCount,
-			bool resolveLinkTos, EventFilter eventFilter,
+			bool resolveLinkTos, Filter filter,
 			int maxSearchWindow, UserCredentials userCredentials = null) {
 			Ensure.Positive(maxCount, "maxCount");
 			Ensure.Positive(maxSearchWindow, nameof(maxSearchWindow));
 			Ensure.GreaterThanOrEqualTo(maxSearchWindow, maxCount, nameof(maxSearchWindow));
-			Ensure.NotNull(eventFilter, nameof(eventFilter));
+			Ensure.NotNull(filter, nameof(filter));
 
 			if (maxCount > ClientApiConstants.MaxReadSize)
 				throw new ArgumentException(string.Format(
@@ -278,7 +278,7 @@ namespace EventStore.ClientAPI.Internal {
 
 			var source = TaskCompletionSourceFactory.Create<AllEventsSlice>();
 			var operation = new ReadAllEventsBackwardFilteredOperation(Settings.Log, source, position, maxCount,
-				resolveLinkTos, Settings.RequireMaster, maxSearchWindow, eventFilter.Filters, userCredentials);
+				resolveLinkTos, Settings.RequireMaster, maxSearchWindow, filter.Value, userCredentials);
 
 			await EnqueueOperation(operation).ConfigureAwait(false);
 			return await source.Task.ConfigureAwait(false);
