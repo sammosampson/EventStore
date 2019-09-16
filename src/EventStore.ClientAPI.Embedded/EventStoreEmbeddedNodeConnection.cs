@@ -386,11 +386,11 @@ namespace EventStore.ClientAPI.Embedded {
 				var serverContext = clientFilter.Context == Messages.ClientMessage.Filter.FilterContext.StreamId
 					? TcpClientMessageDto.Filter.FilterContext.StreamId
 					: TcpClientMessageDto.Filter.FilterContext.EventType;
-			
+
 				var serverType = clientFilter.Type == Messages.ClientMessage.Filter.FilterType.Prefix
 					? TcpClientMessageDto.Filter.FilterType.Prefix
 					: TcpClientMessageDto.Filter.FilterType.Regex;
-			
+
 				serverFilters.Add(new TcpClientMessageDto.Filter(serverContext, serverType, clientFilter.Data));
 			}
 
@@ -421,11 +421,38 @@ namespace EventStore.ClientAPI.Embedded {
 			return source.Task;
 		}
 
-		public Task<AllEventsSlice> ReadAllEventsBackwardsFilteredAsync(Position position, int maxCount,
-			bool resolveLinkTos
-			, EventFilter eventFilter,
+		public Task<AllEventsSlice> ReadAllEventsBackwardFilteredAsync(Position position, int maxCount,
+			bool resolveLinkTos, EventFilter eventFilter,
 			int maxSearchWindow, UserCredentials userCredentials = null) {
-			throw new NotImplementedException();
+			Ensure.Positive(maxCount, "maxCount");
+			if (maxCount > ClientApiConstants.MaxReadSize)
+				throw new ArgumentException(string.Format(
+					"Count should be less than {0}. For larger reads you should page.",
+					ClientApiConstants.MaxReadSize));
+			var source = new TaskCompletionSource<AllEventsSlice>(TaskCreationOptions.RunContinuationsAsynchronously);
+			var envelope = new EmbeddedResponseEnvelope(new EmbeddedResponders.ReadAllEventsBackward(source));
+			Guid corrId = Guid.NewGuid();
+			
+			var serverFilters = new List<TcpClientMessageDto.Filter>();
+
+			foreach (var clientFilter in eventFilter.Filters) {
+				var serverContext = clientFilter.Context == Messages.ClientMessage.Filter.FilterContext.StreamId
+					? TcpClientMessageDto.Filter.FilterContext.StreamId
+					: TcpClientMessageDto.Filter.FilterContext.EventType;
+
+				var serverType = clientFilter.Type == Messages.ClientMessage.Filter.FilterType.Prefix
+					? TcpClientMessageDto.Filter.FilterType.Prefix
+					: TcpClientMessageDto.Filter.FilterType.Regex;
+
+				serverFilters.Add(new TcpClientMessageDto.Filter(serverContext, serverType, clientFilter.Data));
+			}
+			
+			_publisher.PublishWithAuthentication(_authenticationProvider,
+				GetUserCredentials(_settings, userCredentials), source.SetException, user =>
+					new ClientMessage.ReadAllEventsBackwardFiltered(corrId, corrId, envelope,
+						position.CommitPosition,
+						position.PreparePosition, maxCount, resolveLinkTos, false, maxCount, null, new Core.Util.EventFilter(serverFilters.ToArray()), user));
+			return source.Task;
 		}
 
 		public Task<EventStoreSubscription> SubscribeToStreamAsync(

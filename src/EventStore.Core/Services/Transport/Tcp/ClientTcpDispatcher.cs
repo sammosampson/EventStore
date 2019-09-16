@@ -68,6 +68,11 @@ namespace EventStore.Core.Services.Transport.Tcp {
 			AddWrapper<ClientMessage.ReadAllEventsForwardFilteredCompleted>(WrapReadAllEventsForwardFilteredCompleted,
 				ClientVersion.V2);
 
+			AddUnwrapper(TcpCommand.ReadAllEventsBackwardFiltered, UnwrapReadAllEventsBackwardFiltered,
+				ClientVersion.V2);
+			AddWrapper<ClientMessage.ReadAllEventsBackwardFilteredCompleted>(WrapReadAllEventsBackwardFilteredCompleted,
+				ClientVersion.V2);
+
 			AddUnwrapper(TcpCommand.SubscribeToStream, UnwrapSubscribeToStream, ClientVersion.V2);
 			AddUnwrapper(TcpCommand.UnsubscribeFromStream, UnwrapUnsubscribeFromStream, ClientVersion.V2);
 
@@ -454,7 +459,7 @@ namespace EventStore.Core.Services.Transport.Tcp {
 			if (dto == null) return null;
 
 			EventFilter eventFilter = new EventFilter(dto.Filters);
-			
+
 			int maxSearchWindow = dto.MaxCount;
 			if (dto.MaxSearchWindow.HasValue) {
 				maxSearchWindow = dto.MaxSearchWindow.GetValueOrDefault();
@@ -483,6 +488,34 @@ namespace EventStore.Core.Services.Transport.Tcp {
 			return result;
 		}
 
+		private static ClientMessage.ReadAllEventsBackwardFiltered UnwrapReadAllEventsBackwardFiltered(
+			TcpPackage package,
+			IEnvelope envelope, IPrincipal user) {
+			var dto = package.Data.Deserialize<TcpClientMessageDto.ReadAllEventsFiltered>();
+			if (dto == null) return null;
+
+			EventFilter eventFilter = new EventFilter(dto.Filters);
+
+			int maxSearchWindow = dto.MaxCount;
+			if (dto.MaxSearchWindow.HasValue) {
+				maxSearchWindow = dto.MaxSearchWindow.GetValueOrDefault();
+			}
+
+			return new ClientMessage.ReadAllEventsBackwardFiltered(Guid.NewGuid(), package.CorrelationId, envelope,
+				dto.CommitPosition, dto.PreparePosition, dto.MaxCount,
+				dto.ResolveLinkTos, dto.RequireMaster, maxSearchWindow, null, eventFilter, user, null);
+		}
+
+		private static TcpPackage WrapReadAllEventsBackwardFilteredCompleted(
+			ClientMessage.ReadAllEventsBackwardFilteredCompleted msg) {
+			var dto = new TcpClientMessageDto.ReadAllEventsFilteredCompleted(
+				msg.CurrentPos.CommitPosition, msg.CurrentPos.PreparePosition, ConvertToResolvedEvents(msg.Events),
+				msg.NextPos.CommitPosition, msg.NextPos.PreparePosition, msg.IsEndOfStream,
+				(TcpClientMessageDto.ReadAllEventsFilteredCompleted.ReadAllFilteredResult)msg.Result, msg.Error);
+			return new TcpPackage(TcpCommand.ReadAllEventsBackwardFilteredCompleted, msg.CorrelationId,
+				dto.Serialize());
+		}
+
 		private ClientMessage.SubscribeToStream UnwrapSubscribeToStream(TcpPackage package,
 			IEnvelope envelope,
 			IPrincipal user,
@@ -492,7 +525,8 @@ namespace EventStore.Core.Services.Transport.Tcp {
 			var dto = package.Data.Deserialize<TcpClientMessageDto.SubscribeToStream>();
 			if (dto == null) return null;
 			return new ClientMessage.SubscribeToStream(Guid.NewGuid(), package.CorrelationId, envelope,
-				connection.ConnectionId, dto.EventStreamId??string.Empty /*workaround to allow proto3 clients*/, dto.ResolveLinkTos, user);
+				connection.ConnectionId, dto.EventStreamId ?? string.Empty /*workaround to allow proto3 clients*/,
+				dto.ResolveLinkTos, user);
 		}
 
 		private ClientMessage.UnsubscribeFromStream UnwrapUnsubscribeFromStream(TcpPackage package, IEnvelope envelope,

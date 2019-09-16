@@ -512,6 +512,11 @@ namespace EventStore.Core.Tests.ClientAPI {
 			throw new NotImplementedException();
 		}
 
+		public Task<AllEventsSlice> ReadAllEventsBackwardFilteredAsync(Position position, int maxCount, bool resolveLinkTos, EventFilter eventFilter,
+			int maxSearchWindow, UserCredentials userCredentials = null) {
+			throw new NotImplementedException();
+		}
+
 		public Task<AllEventsSlice> ReadAllEventsBackwardsFilteredAsync(Position position, int maxCount, bool resolveLinkTos, EventFilter eventFilter,
 			int maxSearchWindow, UserCredentials userCredentials = null) {
 			throw new NotImplementedException();

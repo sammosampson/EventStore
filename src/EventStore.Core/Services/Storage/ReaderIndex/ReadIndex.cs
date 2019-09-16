@@ -105,8 +105,13 @@ namespace EventStore.Core.Services.Storage.ReaderIndex {
 		}
 
 		IndexReadAllFilteredResult IReadIndex.ReadAllEventsForwardFiltered(TFPos pos, int maxCount, int maxSearchWindow,
-			EventFilter eventFilter, EventFilter streamFilter) {
-			return _allReader.ReadAllEventsForwardFiltered(pos, maxCount, maxSearchWindow, eventFilter, streamFilter);
+			EventFilter eventFilter) {
+			return _allReader.ReadAllEventsForwardFiltered(pos, maxCount, maxSearchWindow, eventFilter);
+		}
+		
+		IndexReadAllFilteredResult IReadIndex.ReadAllEventsBackwardFiltered(TFPos pos, int maxCount, int maxSearchWindow,
+			EventFilter eventFilter) {
+			return _allReader.ReadAllEventsBackwardFiltered(pos, maxCount, maxSearchWindow, eventFilter);
 		}
 
 		IndexReadAllResult IReadIndex.ReadAllEventsBackward(TFPos pos, int maxCount) {

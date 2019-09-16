@@ -68,5 +68,29 @@
  				_testEventsC.ToArray(),
  				read.Select(x => x.Event).ToArray()));
  		}
+        
+        [Test, Category("LongRunning")]
+        public void handle_paging_between_events_backward() {
+	        var filter = EventFilter
+		        .Create()
+		        .WithEventTypePrefixFilter("AE")
+		        .Build();
+
+	        var sliceStart = Position.End;
+	        var read = new List<ResolvedEvent>();
+	        AllEventsSlice slice;
+
+	        do {
+		        slice = _conn.ReadAllEventsBackwardFilteredAsync(sliceStart, 4096, false, filter, maxSearchWindow: 4096)
+			        .GetAwaiter()
+			        .GetResult();
+		        read.AddRange(slice.Events);
+		        sliceStart = slice.NextPosition;
+	        } while (!slice.IsEndOfStream);
+
+	        Assert.That(EventDataComparer.Equal(
+		        _testEventsC.ToArray(),
+		        read.Select(x => x.Event).ToArray()));
+        }
  	}
  }
