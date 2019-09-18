@@ -79,5 +79,49 @@ namespace EventStore.Core.Util {
 			public bool IsEventAllowed(PrepareLogRecord prepareLogRecord) =>
 				_expectedRegex.Match(prepareLogRecord.EventStreamId).Success;
 		}
+
+		public static (bool Success, string Reason) TryParse(string context, string type, string data, out IEventFilter filter) {
+			TcpClientMessageDto.Filter.FilterContext parsedContext;
+			switch (context) {
+				case "eventtype":
+					parsedContext =  TcpClientMessageDto.Filter.FilterContext.EventType;
+					break;
+				case "streamid":
+					parsedContext = TcpClientMessageDto.Filter.FilterContext.StreamId;
+					break;
+				default:
+					filter = null;
+					var names = string.Join(", ",Enum.GetNames(typeof(TcpClientMessageDto.Filter.FilterContext)));
+					return (false, $"Invalid context please provide one of the following: {names}");
+			}
+			
+			TcpClientMessageDto.Filter.FilterType parsedType;
+			switch (type) {
+				case "regex":
+					parsedType =  TcpClientMessageDto.Filter.FilterType.Regex;
+					break;
+				case "prefix":
+					parsedType = TcpClientMessageDto.Filter.FilterType.Prefix;
+					break;
+				default:
+					filter = null;
+					var names = string.Join(", ",Enum.GetNames(typeof(TcpClientMessageDto.Filter.FilterType)));
+					return (false, $"Invalid type please provide one of the following: {names}");
+			}
+
+			if (string.IsNullOrEmpty(data)) {
+				filter = null;
+				return (false, "Please provide a comma delimited list of data with at least one item");
+			}
+			
+			if (parsedType == TcpClientMessageDto.Filter.FilterType.Regex) {
+				filter = Get(new TcpClientMessageDto.Filter(parsedContext, parsedType, new[] {data}));
+				return (true, null);
+			}
+
+			filter = Get(new TcpClientMessageDto.Filter(parsedContext, parsedType, data.Split(new[] {","}, StringSplitOptions.RemoveEmptyEntries)));
+			return (true, null);
+
+		}
 	}
 }
